@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Пополнение кошелька · Т-Банк</title>
+</head>
+<body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;text-align:center;padding:48px 20px;background:#f5f5f7;color:#111">
+  <h2>Открываю Т-Банк…</h2>
+  <p>Пополнение кошелька на 500 ₽.<br>Если приложение не открылось автоматически — нажми кнопку:</p>
+  <p style="margin-top:28px">
+    <a id="go" href="#" style="display:inline-block;background:#ffdd2d;color:#111;text-decoration:none;font-size:20px;font-weight:600;padding:16px 28px;border-radius:14px">Открыть в Т-Банке</a>
+  </p>
+  <p style="margin-top:24px;font-size:13px;color:#888">Нужен установленный Т-Банк на этом телефоне.</p>
+<script>
+  // Диплинк из реального перехвата приложения А-Мобайл (ptid 13303, payw)
+  var DL = "tinkoffbank://Main/PayByMobileNumber?amount=500&bankMemberId=10092&numberPhone=+79407371507&workflowType=RTLNTransfer";
+  // Android: intent:// с указанием пакета и схемы — открывает приложение из браузера, иначе магазин
+  var INTENT = "intent://Main/PayByMobileNumber?amount=500&bankMemberId=10092&numberPhone=+79407371507&workflowType=RTLNTransfer#Intent;scheme=tinkoffbank;package=com.idamob.tinkoff.android;end";
+  var ua = navigator.userAgent || "";
+  var target = /Android/i.test(ua) ? INTENT : DL;
+  document.getElementById("go").href = target;
+  // авто-редирект
+  setTimeout(function(){ window.location.href = target; }, 400);
+</script>
+</body>
+</html>
