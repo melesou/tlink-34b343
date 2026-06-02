@@ -5,23 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Пополнение кошелька · Т-Банк</title>
 </head>
-<body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;text-align:center;padding:48px 20px;background:#f5f5f7;color:#111">
-  <h2>Открываю Т-Банк…</h2>
-  <p>Пополнение кошелька на 500 ₽.<br>Если приложение не открылось автоматически — нажми кнопку:</p>
-  <p style="margin-top:28px">
-    <a id="go" href="#" style="display:inline-block;background:#ffdd2d;color:#111;text-decoration:none;font-size:20px;font-weight:600;padding:16px 28px;border-radius:14px">Открыть в Т-Банке</a>
-  </p>
-  <p style="margin-top:24px;font-size:13px;color:#888">Нужен установленный Т-Банк на этом телефоне.</p>
+<body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;text-align:center;padding:32px 18px;background:#f5f5f7;color:#111">
+  <h2 style="margin-bottom:6px">Пополнение кошелька · 500 ₽</h2>
+  <p style="color:#555;font-size:14px;margin-top:0">Нажимай кнопки по очереди — та, что откроет Т-Банк, и есть рабочая iOS-схема. Скажи какая сработала.</p>
+
+  <div id="btns" style="margin-top:22px;display:flex;flex-direction:column;gap:12px;max-width:360px;margin-left:auto;margin-right:auto"></div>
+
+  <p style="margin-top:26px;font-size:13px;color:#888">Если ни одна не открывает — приложение Т-Банк не установлено на этом телефоне (его нет в App Store, нужна установка через tbank.ru / T-Mazing).</p>
+
 <script>
-  // Диплинк из реального перехвата приложения А-Мобайл (ptid 13303, payw)
-  var DL = "tinkoffbank://Main/PayByMobileNumber?amount=500&bankMemberId=10092&numberPhone=+79407371507&workflowType=RTLNTransfer";
-  // Android: intent:// с указанием пакета и схемы — открывает приложение из браузера, иначе магазин
-  var INTENT = "intent://Main/PayByMobileNumber?amount=500&bankMemberId=10092&numberPhone=+79407371507&workflowType=RTLNTransfer#Intent;scheme=tinkoffbank;package=com.idamob.tinkoff.android;end";
+  // Платёжный путь — один в один из перехвата приложения А-Мобайл (ptid 13303)
+  var PATH = "Main/PayByMobileNumber?amount=500&bankMemberId=10092&numberPhone=+79407371507&workflowType=RTLNTransfer";
+  // Кандидаты iOS-схем Т-Банка (Android точно tinkoffbank; iOS мог переименовать после ребренда)
+  var schemes = [
+    {name: "Т-Банк — tinkoffbank", scheme: "tinkoffbank"},
+    {name: "Т-Банк — tbank",       scheme: "tbank"},
+    {name: "Т-Банк — tinkoff",     scheme: "tinkoff"},
+    {name: "Т-Банк — tbankru",     scheme: "tbankru"}
+  ];
   var ua = navigator.userAgent || "";
-  var target = /Android/i.test(ua) ? INTENT : DL;
-  document.getElementById("go").href = target;
-  // авто-редирект
-  setTimeout(function(){ window.location.href = target; }, 400);
+  var isAndroid = /Android/i.test(ua);
+  var box = document.getElementById("btns");
+  schemes.forEach(function(s){
+    var url = isAndroid
+      ? ("intent://" + PATH + "#Intent;scheme=" + s.scheme + ";package=com.idamob.tinkoff.android;end")
+      : (s.scheme + "://" + PATH);
+    var a = document.createElement("a");
+    a.href = url;
+    a.textContent = s.name;
+    a.style.cssText = "display:block;background:#ffdd2d;color:#111;text-decoration:none;font-size:18px;font-weight:600;padding:15px 20px;border-radius:14px";
+    box.appendChild(a);
+  });
+  // авто-попытка первой схемы (на iOS может быть заблокирована без тапа — тогда жми кнопки руками)
+  setTimeout(function(){
+    var first = isAndroid
+      ? ("intent://" + PATH + "#Intent;scheme=tinkoffbank;package=com.idamob.tinkoff.android;end")
+      : ("tinkoffbank://" + PATH);
+    try { window.location.href = first; } catch(e){}
+  }, 500);
 </script>
 </body>
 </html>
